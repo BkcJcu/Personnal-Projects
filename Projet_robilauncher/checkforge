@@ -1,0 +1,15 @@
+import minecraft_launcher_lib
+import subprocess
+import sys
+
+
+def chepa():
+    forge_version = minecraft_launcher_lib.forge.find_forge_version("1.18.2")
+    if forge_version is None:
+        print("This Minecraft Version is not supported by Forge")
+    return
+
+
+chepa()
+
+#check si la bonne versiond de forge est installé

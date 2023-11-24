@@ -1,0 +1,27 @@
+from tkinter import Tk, Label
+from PIL import Image, ImageTk
+
+# Création de la fenêtre
+fenetre = Tk()
+fenetre.title("Fenêtre avec fond")
+
+# Chargement de l'image avec PIL
+image_pil = Image.open("chemin/vers/votre/image.png")
+
+# Récupération des dimensions de la fenêtre
+largeur_fenetre = fenetre.winfo_width()
+hauteur_fenetre = fenetre.winfo_height()
+
+# Redimensionnement de l'image selon les dimensions de la fenêtre
+image_redimensionnee = image_pil.resize((largeur_fenetre, hauteur_fenetre), Image.ANTIALIAS)
+
+# Conversion de l'image redimensionnée en un format compatible avec Tkinter
+image_tk = ImageTk.PhotoImage(image_redimensionnee)
+
+# Création d'un widget Label pour afficher l'image en tant que fond
+fond = Label(fenetre, image=image_tk)
+fond.place(x=0, y=0, relwidth=1, relheight=1)
+
+# Lancement de la boucle principale
+fenetre.mainloop()
+

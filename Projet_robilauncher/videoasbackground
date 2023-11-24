@@ -1,0 +1,33 @@
+import tkinter as tk
+import cv2
+from PIL import Image, ImageTk
+
+# Création de la fenêtre
+fenetre = tk.Tk()
+fenetre.title("Fenêtre avec fond vidéo")
+
+# Chargement de la vidéo
+video_capture = cv2.VideoCapture("chemin/vers/votre/video.mp4")
+
+# Fonction pour mettre à jour le fond vidéo
+def update_video_background():
+    _, frame = video_capture.read()
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    img = Image.fromarray(frame)
+    img_tk = ImageTk.PhotoImage(image=img)
+    fond.configure(image=img_tk)
+    fond.image = img_tk
+    fenetre.after(33, update_video_background)  # Mettre à jour toutes les 33 ms (environ 30 FPS)
+
+# Création d'un widget Label pour afficher le fond vidéo
+fond = tk.Label(fenetre)
+fond.pack()
+
+# Lancement de la mise à jour du fond vidéo
+update_video_background()
+
+# Ajout du contenu de la fenêtre ici...
+
+# Lancement de la boucle principale
+fenetre.mainloop()
+

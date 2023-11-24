@@ -1,0 +1,5 @@
+from getpass import getpass
+
+email = input("Email: ")
+password = getpass("Password: ")
+print(password) 
