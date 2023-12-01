@@ -12,8 +12,14 @@ import random
 from typing import Union
 
 
+
+# Hide my token
+from dotenv import load_dotenv
+
+
 #--------------------------#
 import sys # Gère les processus
+import os # Gère les chemins d'accès
 from PySide6 import QtCore, QtWidgets, QtGui
 
 
@@ -91,17 +97,17 @@ class Ui_MainWindow(object):
         font.setFamily("Arial Black")
         font.setPointSize(20)
         font.setBold(True)
-        font.setWeight(75)
+        font.setWeight(QtGui.QFont.Bold)
         self.title.setFont(font)
         self.title.setObjectName("title")
         self.label1 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label1.setGeometry(QtCore.QRect(30, 60, 121, 21))
+        self.label1.setGeometry(QtCore.QRect(30, 60, 131, 21))
         self.label1.setObjectName("label1")
         self.label2 = QtWidgets.QLabel(parent=self.centralwidget)
         self.label2.setGeometry(QtCore.QRect(30, 120, 121, 21))
         self.label2.setObjectName("label2")
         self.label3 = QtWidgets.QLabel(parent=self.centralwidget)
-        self.label3.setGeometry(QtCore.QRect(350, 60, 121, 21))
+        self.label3.setGeometry(QtCore.QRect(350, 60, 141, 21))
         self.label3.setObjectName("label3")
         self.comboBox_2 = QtWidgets.QComboBox(parent=self.centralwidget)
         self.comboBox_2.setGeometry(QtCore.QRect(350, 80, 281, 21))
@@ -138,14 +144,19 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-        while serverlistflag == False:
-            time.sleep(1.3)
-            print("Waiting for server list")
+        while on_ready_flag == False:
+            time.sleep(1)
+
         self.comboBox.addItems(serverlist_name)
         self.comboBox.show()
 
+        self.comboBox_2.addItems(friendlist_name)
+        self.comboBox.show()
+
         # Button functions
-        self.pushButton.clicked.connect(self.message)
+        self.pushButtonServer.clicked.connect(self.messageserver)
+
+        self.pushButtonDM.clicked.connect(self.messagedm)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -154,19 +165,38 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.pushButton.setText(_translate("MainWindow", "Send"))
+        self.pushButtonServer.setText(_translate("MainWindow", "Send"))
         self.title.setText(_translate("MainWindow", "Bot GUI"))
+        self.label1.setText(_translate("MainWindow", "Selectionner un Serveur"))
+        self.label2.setText(_translate("MainWindow", "Entrez un message"))
+        self.label3.setText(_translate("MainWindow", "Selectionner une personne"))
+        self.pushButtonDM.setText(_translate("MainWindow", "Send"))
 
 
-    def message(self):
+    def messageserver(self):
         target_server = self.comboBox.currentText()
         if target_server in serverlist_name:
             indexserver = serverlist_name.index(target_server)
             target_server = serverlist_id[indexserver]
         
-        messagetosend = self.plainTextEdit.toPlainText()
+        messagetosend = self.plainTextEditToServer.toPlainText()
         
-        future = asyncio.run_coroutine_threadsafe(send_discord_message(messagetosend, target_server), bot.loop)
+        future = asyncio.run_coroutine_threadsafe(send_discord_message_server(messagetosend, target_server), bot.loop)
+
+        try:
+            result = future.result()
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+    def messagedm(self):
+        target_user = self.comboBox_2.currentText
+        if target_user in friendlist_name:
+            indexfriend = friendlist_name.index(target_user)
+            target_user = friendlist_id[indexfriend]
+        
+        messagetosend = self.plainTextEditToDM.toPlainText()
+
+        future = asyncio.run_coroutine_threadsafe(send_discord_message_dm(messagetosend, target_user), bot.loop)
 
         try:
             result = future.result()
@@ -195,7 +225,7 @@ if __name__ == "__main__":
 
     serverlist_name = []
     serverlist_id = []
-    serverlistflag = False
+    on_ready_flag = False
 
 
     # Modifier un message envoyé par await interaction.channel.send()
@@ -208,15 +238,17 @@ if __name__ == "__main__":
     spamping_whitelist = [360850540990562304]
 
     # Friend list #
-    friendlist = [551789791830736906, 448228750782496779, 425710945936080897]
+    friendlist_id = [551789791830736906, 360850540990562304, 448228750782496779, 425710945936080897, 610552877295075358]
+    friendlist_name = []
+    
 
-    discord_token = "MTE3NjgxNDk3NTkzNTg1NjY5MA.GZKo6m.p-Zn783pjDU-Ud7p2HUhbp1vvOCw9XBe7kfUxY"
+    discord_token = os.getenv('TOKEN')
     app_id = "1176814975935856690"
 
     bot = commands.Bot(
-    command_prefix="/",
-    description="",
-    intents=discord.Intents.all()
+        command_prefix="/",
+        description="",
+        intents=discord.Intents.all()
     )
 
 
@@ -233,7 +265,9 @@ if __name__ == "__main__":
 
         global serverlist_name
         global serverlist_id
-        global serverlistflag
+        global on_ready_flag
+        global friendlist_name
+        global friendlist_id
 
         print(f"Logged in as {bot.user}")
 
@@ -241,9 +275,15 @@ if __name__ == "__main__":
         for guild in bot.guilds:
             print(f'- {guild.name} ({guild.id})')
             serverlist_name.append(guild.name), serverlist_id.append(guild.id)
-            print(serverlist_name)
+        
+        guildlist = []
+        for guild in bot.guilds:
+            guildlist.append(app_commands.Choice(name=guild.id, value=guild.name))
 
-        serverlistflag = True
+
+        for friendid in friendlist_id:
+            username = await bot.fetch_user(friendid)
+            friendlist_name.append(username.name)
 
 
         print("Building Malveillance...")
@@ -256,11 +296,9 @@ if __name__ == "__main__":
 
         await bot.change_presence(status=discord.Status.do_not_disturb, activity = discord.Activity(type=discord.ActivityType.listening, name = "Flo Rida - Whistle"))
 
+        on_ready_flag = True
 
-        
-        guildlist = []
-        for guild in bot.guilds:
-            guildlist.append(app_commands.Choice(name=guild.id, value=guild.name))
+        print("On ready finished")
 
     
     #---------- Starting UI ----------#
@@ -269,11 +307,16 @@ if __name__ == "__main__":
 
     # ---- Async functions used in my GUI ---- #
 
-    async def send_discord_message(message: str, target_server: str):
+    async def send_discord_message_server(message: str, target_server: str):
         targetguild = bot.get_guild(int(target_server))
         welcomechannel = targetguild.system_channel
         await welcomechannel.send(content=message)
 
+
+    async def send_discord_message_dm(message: str, user_id: str):
+        print("salut")
+        user = await bot.fetch_user(user_id)
+        await user.send(message)
 
 
 
