@@ -390,7 +390,7 @@ if __name__ == "__main__":
             if duration is not None:
                 if interaction.permissions.moderate_members:
                     duration = timedelta(seconds=int(duration))
-                    target_user = interaction.guild.get_member(member.id)
+                    target_user = interaction.guild.get_member(member.id)   
                     await target_user.timeout(duration, reason=reason)
                     await interaction.response.send_message(content=f"# {member.mention} a été timeout !", ephemeral=True)
                 else:
@@ -460,7 +460,6 @@ if __name__ == "__main__":
 
     async def jeutropcool(interaction:discord.Interaction, user1: discord.User, user2: discord.User, duration: int):
         if interaction.permissions.moderate_members:
-
 
             try:
                 await interaction.response.send_message(content= "Lancement du jeu...", ephemeral=True)
