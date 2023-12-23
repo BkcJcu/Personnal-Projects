@@ -240,8 +240,7 @@ if __name__ == "__main__":
     # Friend list #
     friendlist_id = [551789791830736906, 360850540990562304, 448228750782496779, 425710945936080897, 610552877295075358]
     friendlist_name = []
-    
-
+        
     discord_token = os.getenv('TOKEN')
     app_id = "1176814975935856690"
 
@@ -639,8 +638,12 @@ if __name__ == "__main__":
         await msg.reply(content=answer)
 
 
+    @bot.tree.command(name='hello', description="dit bonjour")
+    @app_commands.describe()
 
-        
+    async def hello(interaction:discord.Interaction):
+        await interaction.response.send_message("Salut !")
+
 
 
     # ---- Run bot ---- #
