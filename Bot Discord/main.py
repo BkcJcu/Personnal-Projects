@@ -285,9 +285,6 @@ if __name__ == "__main__":
             friendlist_name.append(username.name)
 
 
-        print("Building Malveillance...")
-        print("Malveillance MAXIMALE !")
-
         try:
             synced = await bot.tree.sync()
             print(synced)
